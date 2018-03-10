@@ -18,7 +18,7 @@ class FeedController extends Controller
     {
         $users = auth()->user()->friends->pluck('id'); //amigos
         $users->push(auth()->user()->id); //propias
-      	return Feed::with('user.profile')->whereIn('user_id', $users)->orderBy('created_at','DESC')->get();
+      	return Feed::with('user.profile')->whereIn('user_id', $users)->orderBy('created_at','DESC')->paginate(10);
     }
 
     /**
@@ -72,6 +72,6 @@ class FeedController extends Controller
 
     public function showUserFeeds(User $user)
     {
-        return $user->feeds()->with('user.profile')->get();
+        return $user->feeds()->with('user.profile')->orderBy('created_at','DESC')->paginate(10);
     }
 }

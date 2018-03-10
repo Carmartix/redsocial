@@ -3,7 +3,7 @@
         <create-feed v-bind:feed="feed_edit" v-if="id == 0"></create-feed>
         <div class="card card-default mb-3"  v-for="feed, index in feeds">
             <div class="card-header">
-                <img :src="feed.user.profile.image" style="vertical-align: baseline" class="rounded d-inline-block" width="40" height="40">
+                <img :src="feed.user.profile.image" style="vertical-align: bottom" class="rounded d-inline-block" width="40" height="40">
                 <div class="d-inline-block ml-2">
                     <strong class="d-block">{{ feed.user.name }}</strong>
                     <small>{{ feed.created_at | moment("from") }}</small>
@@ -17,6 +17,9 @@
                 <button type="button" @click="edit(feed)" class="btn btn-outline-info">Editar</button>
             </div>
         </div>
+        <div class="justify-content-start">
+            <pagination class="justify-content-center" v-bind:limit="2" :data="paginate" v-on:pagination-change-page="getResults"></pagination>
+        </div>
     </div>
 </template>
 
@@ -26,6 +29,9 @@
         data: function () {
             return {
                 feeds: [],
+                paginate: {
+                    current_page: 1,
+                },
                 feed_edit: {
                     id: 0,
                     content: ''
@@ -45,21 +51,28 @@
             }
         },
         mounted() {
-            var app = this;
-            var url = '/feeds';
-            if (app.id != 0) {
-                url = '/user/'+ app.id +'/feeds';
-            }
-            axios.get(url)
-                .then(function (resp) {
-                    app.feeds = resp.data;
-                })
-                .catch(function (resp) {
-                    console.log(resp);
-                    app.$toastr.e("COULD NOT LOAD FEEDS"); 
-                });
+            this.getResults();
         },
         methods: {
+            getResults(page) {
+                var app = this;
+                var url = '/feeds';
+                if (app.id != 0) {
+                    url = '/user/'+ app.id +'/feeds';
+                }
+                if (typeof page === 'undefined') {
+                    page = 1;
+                }
+                axios.get(url + '?page=' + page)
+                    .then(function (resp) {
+                        app.feeds = resp.data.data;
+                        app.paginate = resp.data;
+                    })
+                    .catch(function (resp) {
+                        console.log(resp);
+                        app.$toastr.e("COULD NOT LOAD FEEDS"); 
+                    });
+            },
             destroy: function(id, index) {
                 if (confirm("Do you really want to delete it?")) {
                     var app = this;

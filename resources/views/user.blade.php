@@ -4,10 +4,10 @@
 
   <div class="row justify-content-center px-3">
 		<div class="col-4">
-			<profile :id="{{ $id }}"></profile>
+			<profile v-bind:id="{{ $id }}"></profile>
 		</div>
     <div class="col-8">
-      <list-feeds :id="{{ $id }}"></list-feeds>
+      <list-feeds v-bind:id="{{ $id }}"></list-feeds>
     </div>
   </div>
 

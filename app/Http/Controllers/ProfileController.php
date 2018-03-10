@@ -12,14 +12,25 @@ class ProfileController extends Controller
    
   public function show(Request $request, $id = null)
   {
-  	if (is_null($id) && $request->wantsJson()) {
-  		# Perfil Personal
-			return auth()->user()->load('profile');
-  	} else if ($request->wantsJson()) {
-  		# Perfil de Otro
-			return User::with('profile')->findOrFail($id);
+  	if (is_null($id)) {
+  		if ($request->wantsJson()) {
+  			# no hay usuario y es peticion JSON
+				return auth()->user()->load('profile');
+  		} else {
+  			# no hay usuario y no es JSON //NO EXISTE
+  			abort(404);
+  		}
+  	} else {
+  		$user = User::findOrFail($id);
+  		# *** Perfil de USUARIO ***
+			if ($request->wantsJson()) {
+  			# USUARIO y es peticion JSON
+				return $user->load('profile');
+  		} else if ($user) {
+  			# no hay usuario y no es JSON //NO EXISTE
+  			return view('user')->with('id', $user->id);
+  		}
   	}
-  	return view('user')->with('id',$id);
 	}
 
 	public function update(Request $request)

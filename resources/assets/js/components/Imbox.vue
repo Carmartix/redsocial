@@ -4,9 +4,9 @@
             <div class="card-header">Solicitudes de Amistad</div>
             <ul class="list-group">
                 <li class="list-group-item" v-for="imbox, index in imboxs">
-                    <img :src="imbox.user2.profile.image" style="vertical-align: baseline" class="rounded d-inline-block" width="40" height="40">
+                    <img :src="imbox.user2.profile.image" style="vertical-align: bottom" class="rounded d-inline-block" width="40" height="40">
                     <div class="d-inline-block">
-                        <small class="d-block">{{ imbox.text }}</small>
+                        <small class="d-block"><a :href="'/user/'+imbox.user2.id">{{ imbox.text }}</a></small>
                         <div>
                             <button class="btn btn-sm btn-success" @click="accept(imbox, index)" type="button">Aceptar</button>
                             <button class="btn btn-sm btn-outline-danger" @click="destroy(imbox.id, index)" type="button">Eliminar</button>

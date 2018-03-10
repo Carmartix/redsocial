@@ -3,7 +3,7 @@
         <div class="card card-default">
             <div class="card-header">Amigos</div>
             <ul class="list-group">
-                <li class="list-group-item" v-for="friend, index in friends">
+                <a :href="'/user/' + friend.id" class="list-group-item" v-for="friend, index in friends">
                     <img :src="friend.profile.image" style="vertical-align: baseline" class="rounded d-inline-block" width="40" height="40">
                     <div class="d-inline-block">
                         <strong class="d-block">{{ friend.name }}</strong>
@@ -12,7 +12,7 @@
                     <div class="d-inline-block float-right">
                         <button class="btn btn-danger" @click="destroy(friend.id, index)">X</button>
                     </div>
-                </li>
+                </a>
             </ul>
         </div>       
     </div>

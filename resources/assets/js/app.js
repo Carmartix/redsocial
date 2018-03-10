@@ -22,6 +22,7 @@ Vue.use(require('vue-moment'), {
 })
 Vue.use(require('vue-toastr'));
 
+Vue.component('pagination', require('laravel-vue-pagination'));
 
 Vue.component('create-feed', require('./components/CreateFeed.vue'));
 Vue.component('list-feeds', require('./components/ListFeeds.vue'));

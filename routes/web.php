@@ -19,26 +19,29 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-//Api RestFULL para Feeds
-Route::apiResource('feeds','FeedController');
+Route::middleware('auth')->group(function() {	
+	//Api RestFULL para Feeds
+	Route::apiResource('feeds','FeedController');
 
-//actualizar perfil para user logeado
-Route::post('user/profile', 'ProfileController@update');
+	//imbox para user logeado
+	Route::apiResource('imboxs', 'ImboxController');
 
-//imbox para user logeado
-Route::apiResource('imboxs', 'ImboxController');
+	//actualizar perfil para user logeado
+	Route::post('user/profile', 'ProfileController@update');
 
-//Obtener Perfil para user logeado o otro {user}
-Route::get('user/{id?}', 'ProfileController@show');
+	//Obtener Perfil para user logeado o otro {user}
+	Route::get('user/{id?}', 'ProfileController@show');
 
-//Obtener Feeds de otros users
-Route::get('user/{user}/feeds', 'FeedController@showUserFeeds');
+	//Obtener Feeds de otros users
+	Route::get('user/{user}/feeds', 'FeedController@showUserFeeds');
 
-//Solicitud de Amistad a usuario {id} 
-Route::get('user/{id}/friend', 'FriendshipController@addFriend');
+	//Solicitud de Amistad a usuario {id} 
+	Route::get('user/{id}/friend', 'FriendshipController@addFriend');
 
-//Retorna Amigos del user logeado
-Route::get('friends' , 'FriendshipController@showFriends');
+	//Retorna Amigos del user logeado
+	Route::get('friends' , 'FriendshipController@showFriends');
 
-//Delete Friends
-Route::delete('friends/{id}' , 'FriendshipController@destroy');
+	//Delete Friends
+	Route::delete('friends/{id}' , 'FriendshipController@destroy');
+	
+});

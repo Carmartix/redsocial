@@ -13916,7 +13916,12 @@ window.Vue = __webpack_require__(37);
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-Vue.use(__webpack_require__(186));
+var moment = __webpack_require__(63);
+__webpack_require__(97);
+
+Vue.use(__webpack_require__(186), {
+  moment: moment
+});
 Vue.use(__webpack_require__(188));
 
 Vue.component('create-feed', __webpack_require__(43));

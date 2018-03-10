@@ -2,7 +2,7 @@
 Testing Laravel 5.6 and Vue with a social network
 
 # Installing
-git clone
+git clone https://github.com/Carmartix/redsocial.git
 cd redsocial
 composer install
 npm install

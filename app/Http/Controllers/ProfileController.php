@@ -37,8 +37,8 @@ class ProfileController extends Controller
 		if ($request->get('image') != $user->profile->image ) {
 			$imageData = $request->get('image');
       $fileName = Carbon::now()->timestamp . '_' . uniqid() . '.' . explode('/', explode(':', substr($imageData, 0, strpos($imageData, ';')))[1])[1];
-      Image::make($request->get('image'))->save(public_path('images/').$fileName);
-      $user->profile->image = '../images/' . $fileName;
+      Image::make($request->get('image'))->save(public_path('images/users/').$fileName);
+      $user->profile->image = '../images/users/' . $fileName;
     }
 		$user->profile->save();
 		return $user;

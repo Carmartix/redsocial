@@ -2,7 +2,7 @@
     <div class="justify-content-center mb-3">
         <div class="card card-primary">
             <div class="card-header">{{ feed.id ? 'Editar' : 'Crear'}} Publicación</div>
-            <form v-on:submit="saveFeed">
+            <form v-on:submit.prevent="saveFeed">
                 <div class="card-body">
                     <textarea class="form-control" name="content" v-model="feed.content" placeholder="¿Deseas publicar una noticia?"></textarea>
                 </div>
@@ -43,10 +43,12 @@
                 axios.post(url, newFeed)
                     .then(function (resp) {
                         app.feed = {content :'',image: ''};
+                        app.$toastr.s("CREATED FEED SUCCESSFULLY"); 
+                        app.$forceUpdate();
                     })
                     .catch(function (resp) {
                         console.log(resp);
-                        alert("Could not create your feed");
+                        app.$toastr.e("COULD NOT CREATE FEED"); 
                     });
             }
         }

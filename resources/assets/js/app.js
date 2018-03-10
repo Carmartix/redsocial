@@ -15,6 +15,7 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 Vue.use(require('vue-moment'));
+Vue.use(require('vue-toastr'));
 
 
 Vue.component('create-feed', require('./components/CreateFeed.vue'));

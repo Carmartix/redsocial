@@ -56,7 +56,7 @@
                 })
                 .catch(function (resp) {
                     console.log(resp);
-                    alert("Could not load feeds");
+                    app.$toastr.e("COULD NOT LOAD FEEDS"); 
                 });
         },
         methods: {
@@ -66,17 +66,18 @@
                     axios.delete('/feeds/' + id)
                         .then(function (resp) {
                             app.feeds.splice(index, 1);
-                            alert("Feed Delete");
+                            app.$toastr.s("FEED DELETED"); 
                         })
                         .catch(function (resp) {
                             console.log(resp);
-                            alert("Could not delete feed");
+                            app.$toastr.e("COULD NOT DELETE FEED"); 
                         });
                 }
             },
             edit(feed) {
                 let app = this;
                 app.feed_edit = feed;
+                app.$toastr.s("EDITING FEED"); 
             }
         }
     }

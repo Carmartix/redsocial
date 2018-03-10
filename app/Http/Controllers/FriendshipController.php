@@ -25,4 +25,16 @@ class FriendshipController extends Controller
 		]);
 		return response('sucess');
 	}
+
+	  //
+	public function destroy(Request $request, $id)
+	{
+		# eliminar amigo directo 
+		auth()->user()->friends()->detach($id);
+
+		//eliminar amigo inverso
+		User::find($id)->friends()->detach(auth()->user()->id);
+		return response('success');
+	}
+
 }

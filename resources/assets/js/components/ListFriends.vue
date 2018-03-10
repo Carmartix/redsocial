@@ -10,7 +10,7 @@
                         <small>{{ friend.pivot.created_at  | moment("from") }}</small>
                     </div>
                     <div class="d-inline-block float-right">
-                        <button class="close" @click="destroy(friend.id, index)"></button>
+                        <button class="btn btn-danger" @click="destroy(friend.id, index)">X</button>
                     </div>
                 </li>
             </ul>
@@ -33,7 +33,7 @@
                 })
                 .catch(function (resp) {
                     console.log(resp);
-                    alert("Could not load friends");
+                    app.$toastr.e("COULD NOT LOAD FRIENDS"); 
                 });
         },
         methods: {
@@ -43,11 +43,11 @@
                     axios.delete('/friends/' + id)
                         .then(function (resp) {
                             app.friends.splice(index, 1);
-                            alert("Friend Delete");
+                            app.$toastr.s("FRIEND DELETED"); 
                         })
                         .catch(function (resp) {
                             console.log(resp);
-                            alert("Could not delete friend");
+                            app.$toastr.e("COULD NOT DELETE FRIEND"); 
                         });
                 }
             }

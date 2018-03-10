@@ -36,7 +36,7 @@
                 })
                 .catch(function (resp) {
                     console.log(resp);
-                    alert("Could not load imbox");
+                    app.$toastr.e("COULD NOT LOAD IMBOX"); 
                 });
         },
         methods: {
@@ -46,11 +46,11 @@
                     axios.delete('/imboxs/' + id)
                         .then(function (resp) {
                             app.imboxs.splice(index, 1);
-                            alert("imbox Delete");
+                            app.$toastr.s("DELETED IMBOX MESSAGE"); 
                         })
                         .catch(function (resp) {
                             console.log(resp);
-                            alert("Could not delete imbox");
+                            app.$toastr.e("CAN'T DELETED IMBOX MESSAGE"); 
                         });
                 }
             },
@@ -59,11 +59,11 @@
                 axios.post('/imboxs', imbox)
                     .then(function(resp) {
                         app.imboxs.splice(index, 1);
-                        alert("Friend accepted");
+                        app.$toastr.s("ACCEPTED NEW FRIEND"); 
                     })
                     .catch(function(resp) {
                         console.log(resp);
-                        alert("Could not accept friend");
+                        app.$toastr.e("COULD NOT ACCEPTED FRIEND"); 
                     });
             }
         }

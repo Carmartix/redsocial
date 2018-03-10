@@ -74,13 +74,14 @@
                 })
                 .catch(function(resp) {                    
                     console.log(resp);
-                    alert("Could not load user profile");
+                    app.$toastr.e("COULD NOT LOAD USER PROFILE"); 
                 });
         },
          methods: {
             editar: function (event) {
                 this.editing = false;
                 console.log('Editing Profile');
+                this.$toastr.s("EDITING PROFILE"); 
             },
             save: function(event) {
                 console.log('Save user');
@@ -91,11 +92,11 @@
                         app.user = resp.data;
                         app.user.image = app.user.profile.image;
                         app.editing = true;
-                        alert("Profile Update");
+                        app.$toastr.s("PROFILE UPDATE"); 
                     })
                     .catch(function(resp) {                    
                         console.log(resp);
-                        alert("Could not update user profile");
+                        app.$toastr.e("COULD NOT UPDATE USER PROFILE"); 
                     });
             },
             onFileChange(e) {
@@ -118,12 +119,12 @@
                 var app = this;
                 axios.get('/user/'+app.id+'/friend')
                     .then(function(resp) {
-                        console.log('Friend add');
-                        vm.$forceUpdate();
+                        app.$toastr.s("FRIEND INVITATION SENT"); 
+                        app.$forceUpdate();
                     })
                     .catch(function(resp) {
                         console.log(resp);
-                        alert("Could not add friend");
+                        app.$toastr.e("CAN'T SEND INVITATION FRIEND"); 
                     })
             }
 

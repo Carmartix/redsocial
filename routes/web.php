@@ -39,3 +39,4 @@ Route::get('user/{id}/friend', 'FriendshipController@addFriend');
 
 //Retorna Amigos del user logeado
 Route::get('friends' , 'FriendshipController@showFriends');
+Route::delete('friends/{id}' , 'FriendshipController@destroy');

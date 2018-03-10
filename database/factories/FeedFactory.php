@@ -9,6 +9,7 @@ $factory->define(App\Feed::class, function (Faker $faker) {
         'likes' => $faker->randomNumber(3),
         'user_id' => function () {
             return factory(App\User::class)->create()->id;
-        }
+        },
+        "created_at" => $faker->dateTimeBetween($startDate = '-1 years', $endDate = 'now', $timezone = 'America/Caracas')
     ];
 });

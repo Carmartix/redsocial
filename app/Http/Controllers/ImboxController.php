@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Imbox;
+use App\User;
 
 class ImboxController extends Controller
 {
@@ -27,7 +28,13 @@ class ImboxController extends Controller
     public function store(Request $request)
     {
     	# accept Friend
-    	auth()->user()->friends()->attach($request->user2_id);
+    	$user = auth()->user();
+    	$user->friends()->attach($request->user2_id);
+
+    	#amistad inversa
+    	User::find($request->user2_id)->friends()->attach($user->id);
+
+    	#eliminar notificacion de Imbox
     	Imbox::destroy($request->id);
     	return response('success');
     }
@@ -52,9 +59,7 @@ class ImboxController extends Controller
      */
     public function update(FeedForm $request, $id)
     {
-    	$feed = Feed::findOrFail($id)->fill($request->all());
-        $feed->save();
-    	return $feed;
+    	return response(null);
     }
 
     /**
@@ -69,8 +74,4 @@ class ImboxController extends Controller
     	return response('success');
     }
 
-    public function showUserFeeds(User $user)
-    {
-        return $user->feeds()->with('user.profile')->get();
-    }
 }

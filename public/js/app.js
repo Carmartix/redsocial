@@ -48077,24 +48077,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            friends: []
+            friends: [],
+            paginate: {}
         };
     },
     mounted: function mounted() {
-        var app = this;
-        axios.get('/friends').then(function (resp) {
-            app.friends = resp.data;
-        }).catch(function (resp) {
-            console.log(resp);
-            app.$toastr.e("COULD NOT LOAD FRIENDS");
-        });
+        this.getResults();
     },
 
     methods: {
+        getResults: function getResults(page) {
+            if (typeof page === 'undefined') {
+                page = 1;
+            }
+            var app = this;
+            axios.get('/friends?page=' + page).then(function (resp) {
+                app.friends = resp.data.data;
+                app.paginate = resp.data;
+            }).catch(function (resp) {
+                console.log(resp);
+                app.$toastr.e("COULD NOT LOAD FRIENDS");
+            });
+        },
+
         destroy: function destroy(id, index) {
             if (confirm("Do you really want to delete it?")) {
                 var app = this;
@@ -48119,55 +48129,66 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "justify-content-center" }, [
-    _c("div", { staticClass: "card card-default" }, [
-      _c("div", { staticClass: "card-header" }, [_vm._v("Amigos")]),
-      _vm._v(" "),
-      _c(
-        "ul",
-        { staticClass: "list-group" },
-        _vm._l(_vm.friends, function(friend, index) {
-          return _c("li", { staticClass: "list-group-item" }, [
-            _c("img", {
-              staticClass: "rounded d-inline-block",
-              staticStyle: { "vertical-align": "bottom" },
-              attrs: { src: friend.profile.image, width: "40", height: "40" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "d-inline-block" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "d-block",
-                  attrs: { href: "/user/" + friend.id }
-                },
-                [_c("strong", [_vm._v(_vm._s(friend.name))])]
-              ),
+    _c(
+      "div",
+      { staticClass: "card card-default" },
+      [
+        _c("div", { staticClass: "card-header" }, [_vm._v("Amigos")]),
+        _vm._v(" "),
+        _c(
+          "ul",
+          { staticClass: "list-group" },
+          _vm._l(_vm.friends, function(friend, index) {
+            return _c("li", { staticClass: "list-group-item" }, [
+              _c("img", {
+                staticClass: "rounded d-inline-block",
+                staticStyle: { "vertical-align": "bottom" },
+                attrs: { src: friend.profile.image, width: "40", height: "40" }
+              }),
               _vm._v(" "),
-              _c("small", [
-                _vm._v(
-                  _vm._s(_vm._f("moment")(friend.pivot.created_at, "from"))
+              _c("div", { staticClass: "d-inline-block" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "d-block",
+                    attrs: { href: "/user/" + friend.id }
+                  },
+                  [_c("strong", [_vm._v(_vm._s(friend.name))])]
+                ),
+                _vm._v(" "),
+                _c("small", [
+                  _vm._v(
+                    _vm._s(_vm._f("moment")(friend.pivot.created_at, "from"))
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "d-inline-block float-right" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger",
+                    on: {
+                      click: function($event) {
+                        _vm.destroy(friend.id, index)
+                      }
+                    }
+                  },
+                  [_vm._v("x")]
                 )
               ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "d-inline-block float-right" }, [
-              _c(
-                "button",
-                {
-                  staticClass: "btn btn-danger",
-                  on: {
-                    click: function($event) {
-                      _vm.destroy(friend.id, index)
-                    }
-                  }
-                },
-                [_vm._v("x")]
-              )
             ])
-          ])
+          })
+        ),
+        _vm._v(" "),
+        _c("pagination", {
+          staticClass: "justify-content-center my-2",
+          attrs: { limit: 1, data: _vm.paginate },
+          on: { "pagination-change-page": _vm.getResults }
         })
-      )
-    ])
+      ],
+      1
+    )
   ])
 }
 var staticRenderFns = []
@@ -48266,29 +48287,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            imboxs: []
+            imboxs: [],
+            paginate: {
+                current_page: 1
+            }
         };
     },
     mounted: function mounted() {
-        var app = this;
-        axios.get('/imboxs').then(function (resp) {
-            app.imboxs = resp.data;
-        }).catch(function (resp) {
-            console.log(resp);
-            app.$toastr.e("COULD NOT LOAD IMBOX");
-        });
+        this.getResults();
     },
 
     methods: {
+        getResults: function getResults(page) {
+            if (typeof page === 'undefined') {
+                page = 1;
+            }
+            var app = this;
+            axios.get('/imboxs?page=' + page).then(function (resp) {
+                app.imboxs = resp.data.data;
+                app.paginate = resp.data;
+            }).catch(function (resp) {
+                console.log(resp);
+                app.$toastr.e("COULD NOT LOAD IMBOX");
+            });
+        },
         destroy: function destroy(id, index) {
             if (confirm("Do you really want to delete it?")) {
                 var app = this;
                 axios.delete('/imboxs/' + id).then(function (resp) {
                     app.imboxs.splice(index, 1);
+                    app.getResults(app.paginate.current_page);
                     app.$toastr.s("DELETED IMBOX MESSAGE");
                 }).catch(function (resp) {
                     console.log(resp);
@@ -48300,6 +48333,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var app = this;
             axios.post('/imboxs', imbox).then(function (resp) {
                 app.imboxs.splice(index, 1);
+                app.getResults(app.paginate.current_page);
                 app.$toastr.s("ACCEPTED NEW FRIEND");
             }).catch(function (resp) {
                 console.log(resp);
@@ -48385,7 +48419,13 @@ var render = function() {
                   "\n                No tiene solicitud de Amistad\n            "
                 )
               ])
-            : _vm._e()
+            : _vm._e(),
+          _vm._v(" "),
+          _c("pagination", {
+            staticClass: "justify-content-center my-2",
+            attrs: { limit: 1, data: _vm.paginate },
+            on: { "pagination-change-page": _vm.getResults }
+          })
         ],
         2
       )

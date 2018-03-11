@@ -11,7 +11,7 @@ class FriendshipController extends Controller
     //
 	public function showFriends(Request $request)
 	{
-		return auth()->user()->friends->load('profile');
+		return auth()->user()->friends()->with('profile')->orderBy('created_at','DESC')->paginate(10);
 	}
 
 	public function addFriend($id)

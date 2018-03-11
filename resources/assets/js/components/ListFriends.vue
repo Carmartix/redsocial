@@ -14,6 +14,7 @@
                     </div>
                 </li>
             </ul>
+            <pagination class="justify-content-center my-2" v-bind:limit="1" :data="paginate" v-on:pagination-change-page="getResults"></pagination>                    
         </div>       
     </div>
 </template>
@@ -22,21 +23,29 @@
     export default {
         data: function () {
             return {
-                friends: []
+                friends: [],
+                paginate: {}
             }
         },            
         mounted() {
-            var app = this;
-            axios.get('/friends')
-                .then(function (resp) {
-                    app.friends = resp.data;
-                })
-                .catch(function (resp) {
-                    console.log(resp);
-                    app.$toastr.e("COULD NOT LOAD FRIENDS"); 
-                });
+            this.getResults();
         },
         methods: {
+            getResults(page) {
+                if (typeof page === 'undefined') {
+                    page = 1;
+                }
+                var app = this;
+                axios.get('/friends?page=' + page)
+                    .then(function (resp) {
+                        app.friends = resp.data.data;
+                        app.paginate = resp.data;
+                    })
+                    .catch(function (resp) {
+                        console.log(resp);
+                        app.$toastr.e("COULD NOT LOAD FRIENDS"); 
+                    });
+            },
             destroy: function(id, index) {
                 if (confirm("Do you really want to delete it?")) {
                     var app = this;

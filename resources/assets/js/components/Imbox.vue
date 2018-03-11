@@ -16,6 +16,7 @@
                 <li class="list-group-item" v-if="imboxs.length < 1">
                     No tiene solicitud de Amistad
                 </li>
+                <pagination class="justify-content-center my-2" v-bind:limit="1" :data="paginate" v-on:pagination-change-page="getResults"></pagination>                    
             </ul>
         </div>       
     </div>
@@ -25,27 +26,38 @@
     export default {
         data: function () {
             return {
-                imboxs: []
+                imboxs: [],
+                paginate: {
+                    current_page: 1
+                }
             }
         },            
         mounted() {
-            var app = this;
-            axios.get('/imboxs')
-                .then(function (resp) {
-                    app.imboxs = resp.data;
-                })
-                .catch(function (resp) {
-                    console.log(resp);
-                    app.$toastr.e("COULD NOT LOAD IMBOX"); 
-                });
+            this.getResults();
         },
         methods: {
+            getResults(page) {
+                if (typeof page === 'undefined') {
+                    page = 1;
+                }
+                var app = this;
+                axios.get('/imboxs?page='+page)
+                    .then(function (resp) {
+                        app.imboxs = resp.data.data;
+                        app.paginate = resp.data;
+                    })
+                    .catch(function (resp) {
+                        console.log(resp);
+                        app.$toastr.e("COULD NOT LOAD IMBOX"); 
+                    });
+            },
             destroy(id, index) {
                 if (confirm("Do you really want to delete it?")) {
                     var app = this;
                     axios.delete('/imboxs/' + id)
                         .then(function (resp) {
                             app.imboxs.splice(index, 1);
+                            app.getResults(app.paginate.current_page);
                             app.$toastr.s("DELETED IMBOX MESSAGE"); 
                         })
                         .catch(function (resp) {
@@ -59,6 +71,7 @@
                 axios.post('/imboxs', imbox)
                     .then(function(resp) {
                         app.imboxs.splice(index, 1);
+                        app.getResults(app.paginate.current_page);
                         app.$toastr.s("ACCEPTED NEW FRIEND"); 
                     })
                     .catch(function(resp) {

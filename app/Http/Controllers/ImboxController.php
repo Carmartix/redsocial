@@ -16,7 +16,7 @@ class ImboxController extends Controller
     public function index(Request $request)
     {
 	   	$imbox = auth()->user()->imbox;
-	   	return ($imbox) ? $imbox->load('user2.profile') : [] ;
+	   	return ($imbox) ? auth()->user()->imbox()->with('user2.profile')->orderBy('created_at','DESC')->paginate(10) : [] ;
     }
 
     /**

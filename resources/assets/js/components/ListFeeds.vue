@@ -1,7 +1,7 @@
 <template>
     <div class="justify-content-center">
-        <create-feed v-bind:feed="feed_edit" v-if="id == 0"></create-feed>
-        <div class="card card-default mb-3"  v-for="feed, index in feeds">
+        <create-feed v-bind:feed="feed_edit" v-if="id == 0 || id == auth.id" @submited="getResults"></create-feed>
+        <div class="card card-default mb-3" :class="{ 'border-primary' : feed.user.id == auth.id }"  v-for="feed, index in feeds">
             <div class="card-header">
                 <img :src="feed.user.profile.image" style="vertical-align: bottom" class="rounded d-inline-block" width="40" height="40">
                 <div class="d-inline-block ml-2">
@@ -12,9 +12,9 @@
             <div class="card-body">
                 {{ feed.content }}
             </div>
-            <div class="card-footer" v-if="user.id == feed.user.id ">
-                <button type="button" v-on:click="destroy(feed.id , index)" class="btn btn-outline-danger">Eliminar</button>
-                <button type="button" @click="edit(feed)" class="btn btn-outline-info">Editar</button>
+            <div class="card-footer d-flex justify-content-between" v-if="auth.id == feed.user.id ">
+                <button type="button" v-on:click="destroy(feed.id , index)" class="btn btn-danger">Eliminar</button>
+                <button type="button" @click="edit(feed)" class="btn btn-info">Editar</button>
             </div>
         </div>
         <div class="justify-content-start">
@@ -43,10 +43,12 @@
                 type: Number,
                 default: 0,
             },
-            user : { // usuario logeado
+            auth : { // usuario logeado
                 type: Object,
-                default: {
-                    id: 0
+                default: function () {
+                    return { 
+                        id: 0
+                    }
                 }
             }
         },
@@ -67,6 +69,10 @@
                     .then(function (resp) {
                         app.feeds = resp.data.data;
                         app.paginate = resp.data;
+                        app.feed_edit = {
+                            id: 0,
+                            content: ''
+                        }
                     })
                     .catch(function (resp) {
                         console.log(resp);
@@ -90,7 +96,7 @@
             edit(feed) {
                 let app = this;
                 app.feed_edit = feed;
-                app.$toastr.s("EDITING FEED"); 
+                app.$toastr.i("EDITING FEED"); 
             }
         }
     }

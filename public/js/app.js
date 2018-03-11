@@ -13931,6 +13931,7 @@ Vue.component('list-feeds', __webpack_require__(46));
 Vue.component('profile', __webpack_require__(49));
 Vue.component('list-friends', __webpack_require__(52));
 Vue.component('imbox', __webpack_require__(60));
+Vue.component('list-users', __webpack_require__(190));
 
 var app = new Vue({
   el: '#app'
@@ -47081,23 +47082,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         }
     },
-    mounted: function mounted() {
-        console.log('Created Feed');
+    computed: {
+        newFeed: function newFeed() {
+            return {
+                id: this.feed.id,
+                content: this.feed.content,
+                image: this.feed.image
+            };
+        }
     },
-
     methods: {
         saveFeed: function saveFeed(event) {
             var app = this;
             var url = '/feeds';
-            if (app.feed.id != 0) {
-                url += '/' + app.feed.id;
-                app.feed._method = 'PUT';
+            if (app.newFeed.id != 0) {
+                url += '/' + app.newFeed.id;
+                app.newFeed._method = 'PUT';
             }
-            var newFeed = app.feed;
-            axios.post(url, newFeed).then(function (resp) {
-                app.feed = { content: '', image: '' };
+            axios.post(url, app.newFeed).then(function (resp) {
+                app.feed = { id: 0, content: '', image: '' };
                 app.$toastr.s("CREATED FEED SUCCESSFULLY");
-                app.$forceUpdate();
+                app.$emit('submited');
             }).catch(function (resp) {
                 console.log(resp);
                 app.$toastr.e("COULD NOT CREATE FEED");
@@ -47117,7 +47122,7 @@ var render = function() {
   return _c("div", { staticClass: "justify-content-center mb-3" }, [
     _c("div", { staticClass: "card card-primary" }, [
       _c("div", { staticClass: "card-header" }, [
-        _vm._v(_vm._s(_vm.feed.id ? "Editar" : "Crear") + " Publicación")
+        _vm._v(_vm._s(_vm.newFeed.id ? "Editar" : "Crear") + " Publicación")
       ]),
       _vm._v(" "),
       _c(
@@ -47137,8 +47142,8 @@ var render = function() {
                 {
                   name: "model",
                   rawName: "v-model",
-                  value: _vm.feed.content,
-                  expression: "feed.content"
+                  value: _vm.newFeed.content,
+                  expression: "newFeed.content"
                 }
               ],
               staticClass: "form-control",
@@ -47146,13 +47151,13 @@ var render = function() {
                 name: "content",
                 placeholder: "¿Deseas publicar una noticia?"
               },
-              domProps: { value: _vm.feed.content },
+              domProps: { value: _vm.newFeed.content },
               on: {
                 input: function($event) {
                   if ($event.target.composing) {
                     return
                   }
-                  _vm.$set(_vm.feed, "content", $event.target.value)
+                  _vm.$set(_vm.newFeed, "content", $event.target.value)
                 }
               }
             })
@@ -47285,10 +47290,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             type: Number,
             default: 0
         },
-        user: { // usuario logeado
+        auth: { // usuario logeado
             type: Object,
-            default: {
-                id: 0
+            default: function _default() {
+                return {
+                    id: 0
+                };
             }
         }
     },
@@ -47309,6 +47316,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.get(url + '?page=' + page).then(function (resp) {
                 app.feeds = resp.data.data;
                 app.paginate = resp.data;
+                app.feed_edit = {
+                    id: 0,
+                    content: ''
+                };
             }).catch(function (resp) {
                 console.log(resp);
                 app.$toastr.e("COULD NOT LOAD FEEDS");
@@ -47330,7 +47341,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         edit: function edit(feed) {
             var app = this;
             app.feed_edit = feed;
-            app.$toastr.s("EDITING FEED");
+            app.$toastr.i("EDITING FEED");
         }
     }
 });
@@ -47347,66 +47358,84 @@ var render = function() {
     "div",
     { staticClass: "justify-content-center" },
     [
-      _vm.id == 0
-        ? _c("create-feed", { attrs: { feed: _vm.feed_edit } })
+      _vm.id == 0 || _vm.id == _vm.auth.id
+        ? _c("create-feed", {
+            attrs: { feed: _vm.feed_edit },
+            on: { submited: _vm.getResults }
+          })
         : _vm._e(),
       _vm._v(" "),
       _vm._l(_vm.feeds, function(feed, index) {
-        return _c("div", { staticClass: "card card-default mb-3" }, [
-          _c("div", { staticClass: "card-header" }, [
-            _c("img", {
-              staticClass: "rounded d-inline-block",
-              staticStyle: { "vertical-align": "bottom" },
-              attrs: { src: feed.user.profile.image, width: "40", height: "40" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "d-inline-block ml-2" }, [
-              _c("strong", { staticClass: "d-block" }, [
-                _vm._v(_vm._s(feed.user.name))
-              ]),
+        return _c(
+          "div",
+          {
+            staticClass: "card card-default mb-3",
+            class: { "border-primary": feed.user.id == _vm.auth.id }
+          },
+          [
+            _c("div", { staticClass: "card-header" }, [
+              _c("img", {
+                staticClass: "rounded d-inline-block",
+                staticStyle: { "vertical-align": "bottom" },
+                attrs: {
+                  src: feed.user.profile.image,
+                  width: "40",
+                  height: "40"
+                }
+              }),
               _vm._v(" "),
-              _c("small", [
-                _vm._v(_vm._s(_vm._f("moment")(feed.created_at, "from")))
-              ])
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _vm._v("\n            " + _vm._s(feed.content) + "\n        ")
-          ]),
-          _vm._v(" "),
-          _vm.user.id == feed.user.id
-            ? _c("div", { staticClass: "card-footer" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-outline-danger",
-                    attrs: { type: "button" },
-                    on: {
-                      click: function($event) {
-                        _vm.destroy(feed.id, index)
-                      }
-                    }
-                  },
-                  [_vm._v("Eliminar")]
-                ),
+              _c("div", { staticClass: "d-inline-block ml-2" }, [
+                _c("strong", { staticClass: "d-block" }, [
+                  _vm._v(_vm._s(feed.user.name))
+                ]),
                 _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-outline-info",
-                    attrs: { type: "button" },
-                    on: {
-                      click: function($event) {
-                        _vm.edit(feed)
-                      }
-                    }
-                  },
-                  [_vm._v("Editar")]
-                )
+                _c("small", [
+                  _vm._v(_vm._s(_vm._f("moment")(feed.created_at, "from")))
+                ])
               ])
-            : _vm._e()
-        ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _vm._v("\n            " + _vm._s(feed.content) + "\n        ")
+            ]),
+            _vm._v(" "),
+            _vm.auth.id == feed.user.id
+              ? _c(
+                  "div",
+                  { staticClass: "card-footer d-flex justify-content-between" },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger",
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            _vm.destroy(feed.id, index)
+                          }
+                        }
+                      },
+                      [_vm._v("Eliminar")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-info",
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            _vm.edit(feed)
+                          }
+                        }
+                      },
+                      [_vm._v("Editar")]
+                    )
+                  ]
+                )
+              : _vm._e()
+          ]
+        )
       }),
       _vm._v(" "),
       _c(
@@ -47528,6 +47557,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -47541,19 +47578,29 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 name: 'Usuario xx1',
                 created_at: '8-03-2018 11:50am'
             },
-            editing: true
-
+            editing: true,
+            canAccept: false,
+            isFriend: false
         };
     },
     props: {
         id: {
             type: Number,
             default: 0
+        },
+        auth: {
+            type: Object,
+            default: function _default() {
+                return {
+                    id: 0
+                };
+            }
         }
     },
     mounted: function mounted() {
         var app = this;
         var url = '/user';
+        if (app.auth.friends) this.checkUser();
         if (app.id != 0) {
             url = '/user/' + app.id;
         }
@@ -47601,7 +47648,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             reader.readAsDataURL(file);
             console.log('New File');
         },
-        addFriend: function addFriend(id) {
+        addFriend: function addFriend() {
             var app = this;
             axios.get('/user/' + app.id + '/friend').then(function (resp) {
                 app.$toastr.s("FRIEND INVITATION SENT");
@@ -47610,6 +47657,55 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 console.log(resp);
                 app.$toastr.e("CAN'T SEND INVITATION FRIEND");
             });
+        },
+        deleteFriend: function deleteFriend() {
+            if (confirm("Do you really want to delete it?")) {
+                var app = this;
+                axios.delete('/friends/' + app.id).then(function (resp) {
+                    app.auth.friends.forEach(function (friend, index) {
+                        if (friend.id == app.id) {
+                            app.auth.friends.slice(index, 1);
+                        }
+                    });
+                    app.isFriend = app.canAccept = false;
+                    app.$toastr.s("FRIEND DELETED");
+                }).catch(function (resp) {
+                    console.log(resp);
+                    app.$toastr.e("COULD NOT DELETE FRIEND");
+                });
+            }
+        },
+        acceptFriend: function acceptFriend() {
+            var app = this;
+            axios.post('/imboxs', app.imbox).then(function (resp) {
+                app.auth.friends.push({ id: app.id });
+                app.canAccept = false;
+                app.isFriend = true;
+                app.$toastr.s("ACCEPTED NEW FRIEND");
+            }).catch(function (resp) {
+                console.log(resp);
+                app.$toastr.e("COULD NOT ACCEPTED FRIEND");
+            });
+        },
+        checkUser: function checkUser() {
+            var app = this;
+            if (app.auth.friends.length > 0) {
+                app.auth.friends.forEach(function (friend) {
+                    if (friend.id == app.id) {
+                        console.log('SOMOS AMIGOS');
+                        app.isFriend = true;
+                    }
+                });
+            }
+            if (app.auth.imbox.length > 0) {
+                app.auth.imbox.forEach(function (imbox) {
+                    if (imbox.user2_id == app.id) {
+                        console.log('TENGO SOLICITUD');
+                        app.canAccept = true;
+                        app.imbox = imbox;
+                    }
+                });
+            }
         }
     }
 });
@@ -47824,40 +47920,76 @@ var render = function() {
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "card-footer" }, [
-      _vm.editing && !_vm.id != 0
-        ? _c(
-            "button",
-            {
-              staticClass: "btn btn-outline-success btn-block",
-              attrs: { type: "button" },
-              on: { click: _vm.editar }
-            },
-            [_vm._v("Editar")]
-          )
+      _vm.id == _vm.auth.id
+        ? _c("div", [
+            _vm.editing
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-outline-success btn-block",
+                    attrs: { type: "button" },
+                    on: { click: _vm.editar }
+                  },
+                  [_vm._v("Editar")]
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            !_vm.editing
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-outline-primary btn-block",
+                    attrs: { type: "button" },
+                    on: { click: _vm.save }
+                  },
+                  [_vm._v("Guardar")]
+                )
+              : _vm._e()
+          ])
         : _vm._e(),
       _vm._v(" "),
-      !_vm.editing
-        ? _c(
-            "button",
-            {
-              staticClass: "btn btn-outline-primary btn-block",
-              attrs: { type: "button" },
-              on: { click: _vm.save }
-            },
-            [_vm._v("Guardar")]
-          )
-        : _vm._e(),
-      _vm._v(" "),
-      _vm.id != 0
-        ? _c(
-            "button",
-            {
-              staticClass: "btn btn-primary btn-block",
-              attrs: { type: "button" },
-              on: { click: _vm.addFriend }
-            },
-            [_vm._v("Agregar amigo/a")]
-          )
+      _vm.id != _vm.auth.id
+        ? _c("div", [
+            !_vm.canAccept
+              ? _c("div", [
+                  !_vm.isFriend
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary btn-block",
+                          attrs: { type: "button" },
+                          on: { click: _vm.addFriend }
+                        },
+                        [_vm._v("Agregar amigo/a")]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.isFriend
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-danger btn-block",
+                          attrs: { type: "button" },
+                          on: { click: _vm.deleteFriend }
+                        },
+                        [_vm._v("Eliminar amigo/a")]
+                      )
+                    : _vm._e()
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.canAccept
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-success btn-block",
+                    attrs: { type: "button" },
+                    on: { click: _vm.acceptFriend }
+                  },
+                  [_vm._v("Aceptar amigo/a")]
+                )
+              : _vm._e()
+          ])
         : _vm._e()
     ])
   ])
@@ -47994,47 +48126,45 @@ var render = function() {
         "ul",
         { staticClass: "list-group" },
         _vm._l(_vm.friends, function(friend, index) {
-          return _c(
-            "a",
-            {
-              staticClass: "list-group-item",
-              attrs: { href: "/user/" + friend.id }
-            },
-            [
-              _c("img", {
-                staticClass: "rounded d-inline-block",
-                staticStyle: { "vertical-align": "baseline" },
-                attrs: { src: friend.profile.image, width: "40", height: "40" }
-              }),
+          return _c("li", { staticClass: "list-group-item" }, [
+            _c("img", {
+              staticClass: "rounded d-inline-block",
+              staticStyle: { "vertical-align": "bottom" },
+              attrs: { src: friend.profile.image, width: "40", height: "40" }
+            }),
+            _vm._v(" "),
+            _c("div", { staticClass: "d-inline-block" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "d-block",
+                  attrs: { href: "/user/" + friend.id }
+                },
+                [_c("strong", [_vm._v(_vm._s(friend.name))])]
+              ),
               _vm._v(" "),
-              _c("div", { staticClass: "d-inline-block" }, [
-                _c("strong", { staticClass: "d-block" }, [
-                  _vm._v(_vm._s(friend.name))
-                ]),
-                _vm._v(" "),
-                _c("small", [
-                  _vm._v(
-                    _vm._s(_vm._f("moment")(friend.pivot.created_at, "from"))
-                  )
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "d-inline-block float-right" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-danger",
-                    on: {
-                      click: function($event) {
-                        _vm.destroy(friend.id, index)
-                      }
-                    }
-                  },
-                  [_vm._v("X")]
+              _c("small", [
+                _vm._v(
+                  _vm._s(_vm._f("moment")(friend.pivot.created_at, "from"))
                 )
               ])
-            ]
-          )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "d-inline-block float-right" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-danger",
+                  on: {
+                    click: function($event) {
+                      _vm.destroy(friend.id, index)
+                    }
+                  }
+                },
+                [_vm._v("x")]
+              )
+            ])
+          ])
         })
       )
     ])
@@ -65023,6 +65153,203 @@ module.exports = {
 	}
 };
 
+
+/***/ }),
+/* 190 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(191)
+/* template */
+var __vue_template__ = __webpack_require__(192)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ListUsers.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-30f34ae3", Component.options)
+  } else {
+    hotAPI.reload("data-v-30f34ae3", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 191 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            users: [],
+            paginate: {
+                current_page: 1
+            }
+        };
+    },
+    props: {
+        auth: {
+            type: Object,
+            default: function _default() {
+                return {};
+            }
+        }
+    },
+    mounted: function mounted() {
+        this.getResults();
+    },
+
+    methods: {
+        getResults: function getResults(page) {
+            if (typeof page === 'undefined') {
+                page = 1;
+            }
+            var app = this;
+            axios.get('/users?page=' + page).then(function (resp) {
+                app.users = resp.data.data;
+                app.paginate = resp.data;
+            }).catch(function (resp) {
+                console.log(resp);
+                app.$toastr.e("COULD NOT LOAD USERS");
+            });
+        },
+
+        destroy: function destroy(id, index) {
+            if (confirm("Do you really want to delete it?")) {
+                var app = this;
+                axios.delete('/friends/' + id).then(function (resp) {
+                    app.friends.splice(index, 1);
+                    app.$toastr.s("FRIEND DELETED");
+                }).catch(function (resp) {
+                    console.log(resp);
+                    app.$toastr.e("COULD NOT DELETE FRIEND");
+                });
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 192 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "row px-3" }, [
+    _c(
+      "div",
+      { staticClass: "card-columns px-3 justify-content-center" },
+      _vm._l(_vm.users, function(user, index) {
+        return _c("div", { staticClass: "card mb-3" }, [
+          _c("div", { staticClass: "card-header text-center" }, [
+            _c("strong", [_vm._v(_vm._s(user.name))])
+          ]),
+          _vm._v(" "),
+          _c("img", {
+            staticClass: "card-img p-3",
+            attrs: { src: user.profile.image }
+          }),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("div", { staticClass: "card-text" }, [
+              _vm._v("Amigos: " + _vm._s(user.friends_count))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-text" }, [
+              _vm._v("Publicaciones: " + _vm._s(user.feeds_count))
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-footer" }, [
+            _c(
+              "a",
+              {
+                staticClass: "btn btn-link",
+                attrs: { href: "/user/" + user.id }
+              },
+              [_vm._v("Ver perfil")]
+            )
+          ])
+        ])
+      })
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "col-12" },
+      [
+        _c("pagination", {
+          staticClass: "justify-content-center",
+          attrs: { limit: 2, data: _vm.paginate },
+          on: { "pagination-change-page": _vm.getResults }
+        })
+      ],
+      1
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-30f34ae3", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

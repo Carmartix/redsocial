@@ -31,9 +31,17 @@
             </li>
         </ul>
         <div class="card-footer">
-            <button type="button" v-on:click="editar" class="btn btn-outline-success btn-block" v-if="editing && !id!=0">Editar</button>
-            <button type="button" v-on:click="save" class="btn btn-outline-primary btn-block" v-if="!editing">Guardar</button>
-            <button type="button" v-on:click="addFriend" class="btn btn-primary btn-block" v-if="id!=0">Agregar amigo/a</button>
+            <div v-if="id == auth.id">                
+                <button type="button" v-on:click="editar" class="btn btn-outline-success btn-block" v-if="editing">Editar</button>
+                <button type="button" v-on:click="save" class="btn btn-outline-primary btn-block" v-if="!editing">Guardar</button>
+            </div>
+            <div v-if="id != auth.id">  
+                <div v-if="!canAccept">
+                    <button type="button" v-on:click="addFriend" class="btn btn-primary btn-block" v-if="!isFriend">Agregar amigo/a</button>
+                    <button type="button" v-on:click="deleteFriend" class="btn btn-danger btn-block" v-if="isFriend">Eliminar amigo/a</button>
+                </div>              
+                <button type="button" v-on:click="acceptFriend" class="btn btn-success btn-block" v-if="canAccept">Aceptar amigo/a</button>
+            </div>
         </div>
     </div>
 </template>
@@ -52,18 +60,28 @@
                     created_at: '8-03-2018 11:50am',
                 },
                 editing: true,
-
+                canAccept: false,
+                isFriend: false,
             }
         },  
         props: {
             id: {
                 type: Number,
                 default: 0,
+            },
+            auth: {
+                type: Object,
+                default: function() {
+                    return { 
+                        id: 0,
+                    }
+                }
             }
         },
         mounted() {
             var app = this;
             var url = '/user';
+            if (app.auth.friends) this.checkUser();
             if (app.id != 0) {
                 url = '/user/'+ app.id ;
             }
@@ -77,7 +95,7 @@
                     app.$toastr.e("COULD NOT LOAD USER PROFILE"); 
                 });
         },
-         methods: {
+        methods: {
             editar: function (event) {
                 this.editing = false;
                 console.log('Editing Profile');
@@ -115,7 +133,7 @@
                 reader.readAsDataURL(file);
                 console.log('New File');
             },
-            addFriend(id){
+            addFriend(){
                 var app = this;
                 axios.get('/user/'+app.id+'/friend')
                     .then(function(resp) {
@@ -126,8 +144,60 @@
                         console.log(resp);
                         app.$toastr.e("CAN'T SEND INVITATION FRIEND"); 
                     })
-            }
-
+            },
+            deleteFriend(){
+                if (confirm("Do you really want to delete it?")) {
+                    var app = this;
+                    axios.delete('/friends/' + app.id)
+                        .then(function (resp) {
+                            app.auth.friends.forEach(function(friend, index) {
+                                if (friend.id == app.id) {
+                                    app.auth.friends.slice(index,1);
+                                }
+                            });
+                            app.isFriend = app.canAccept = false;
+                            app.$toastr.s("FRIEND DELETED"); 
+                        })
+                        .catch(function (resp) {
+                            console.log(resp);
+                            app.$toastr.e("COULD NOT DELETE FRIEND"); 
+                        });
+                }
+            },
+            acceptFriend(){
+                var app = this;
+                axios.post('/imboxs', app.imbox)
+                    .then(function(resp) {
+                        app.auth.friends.push({ id: app.id });
+                        app.canAccept = false;
+                        app.isFriend = true;
+                        app.$toastr.s("ACCEPTED NEW FRIEND"); 
+                    })
+                    .catch(function(resp) {
+                        console.log(resp);
+                        app.$toastr.e("COULD NOT ACCEPTED FRIEND"); 
+                    });
+            },
+            checkUser() {
+                var app = this;
+                if (app.auth.friends.length > 0) { 
+                    app.auth.friends.forEach(function(friend) {
+                        if (friend.id == app.id) {
+                            console.log('SOMOS AMIGOS');
+                            app.isFriend = true;
+                        }
+                    });
+                } 
+                if (app.auth.imbox.length > 0) { 
+                    app.auth.imbox.forEach(function(imbox) {
+                        if (imbox.user2_id == app.id) {
+                            console.log('TENGO SOLICITUD');
+                            app.canAccept = true;
+                            app.imbox = imbox;
+                        }
+                    });
+                }
+            },
         }
     }
 </script>

@@ -3,16 +3,16 @@
         <div class="card card-default">
             <div class="card-header">Amigos</div>
             <ul class="list-group">
-                <a :href="'/user/' + friend.id" class="list-group-item" v-for="friend, index in friends">
-                    <img :src="friend.profile.image" style="vertical-align: baseline" class="rounded d-inline-block" width="40" height="40">
+                <li class="list-group-item" v-for="friend, index in friends">
+                    <img :src="friend.profile.image" style="vertical-align: bottom" class="rounded d-inline-block" width="40" height="40">
                     <div class="d-inline-block">
-                        <strong class="d-block">{{ friend.name }}</strong>
+                        <a :href="'/user/' + friend.id" class="d-block"><strong>{{ friend.name }}</strong></a>
                         <small>{{ friend.pivot.created_at  | moment("from") }}</small>
                     </div>
                     <div class="d-inline-block float-right">
-                        <button class="btn btn-danger" @click="destroy(friend.id, index)">X</button>
+                        <button class="btn btn-danger" @click="destroy(friend.id, index)">x</button>
                     </div>
-                </a>
+                </li>
             </ul>
         </div>       
     </div>

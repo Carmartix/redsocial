@@ -17,13 +17,16 @@ class FriendshipController extends Controller
 	public function addFriend($id)
 	{
 		$u =auth()->user();
+		if (!Imbox::where('user_id',$id)->where('user2_id',$u->id)->get()->isEmpty()) {
+			return response('error invitation sent',403);
+		}
 		Imbox::create([
 			'text'		=> 	$u->name . ' quiere ser tu amigo.', 
 			'user_id'	=>	$id , 
 			'user2_id'=> 	$u->id , 
 			'status' 	=> 	0
 		]);
-		return response('sucess');
+		return response('success');
 	}
 
 	  //

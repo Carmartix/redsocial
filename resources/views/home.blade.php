@@ -7,7 +7,7 @@
 			<profile></profile>
 		</div>
     <div class="col-6">
-      <list-feeds :user="{{ auth()->user() }}"></list-feeds>
+      <list-feeds :auth="{{ auth()->user() }}" ></list-feeds>
     </div>
 		<div class="col-3">
 			<imbox></imbox>

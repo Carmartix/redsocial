@@ -26,6 +26,10 @@ Route::middleware('auth')->group(function() {
 	//imbox para user logeado
 	Route::apiResource('imboxs', 'ImboxController');
 
+	# List of Users
+	//imbox para user logeado
+	Route::apiResource('users', 'UserController');
+
 	//actualizar perfil para user logeado
 	Route::post('user/profile', 'ProfileController@update');
 

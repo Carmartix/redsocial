@@ -29,6 +29,7 @@ Vue.component('list-feeds', require('./components/ListFeeds.vue'));
 Vue.component('profile', require('./components/Profile.vue'));
 Vue.component('list-friends', require('./components/ListFriends.vue'));
 Vue.component('imbox', require('./components/Imbox.vue'));
+Vue.component('list-users', require('./components/ListUsers.vue'));
 
 const app = new Vue({
     el: '#app'

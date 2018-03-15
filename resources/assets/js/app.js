@@ -32,5 +32,5 @@ Vue.component('imbox', require('./components/Imbox.vue'));
 Vue.component('list-users', require('./components/ListUsers.vue'));
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
 });

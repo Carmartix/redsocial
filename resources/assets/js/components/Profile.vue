@@ -76,7 +76,7 @@
                         id: 0,
                     }
                 }
-            }
+            },
         },
         mounted() {
             var app = this;
@@ -93,6 +93,12 @@
                 .catch(function(resp) {                    
                     console.log(resp);
                     app.$toastr.e("COULD NOT LOAD USER PROFILE"); 
+                });
+                
+            Echo.private(`App.User.${this.auth.id}`)
+                .listen('InvitationSentEvent', (e) => {
+                    console.log(e);
+                    this.$toastr.s(e.imbox.text); 
                 });
         },
         methods: {

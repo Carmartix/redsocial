@@ -4,7 +4,7 @@
 
   <div class="row justify-content-center px-3">
 		<div class="col-3">
-			<profile></profile>
+			<profile :auth="{{ auth()->user() }}" :id="{{ auth()->user()->id }}"></profile>
 		</div>
     <div class="col-6">
       <list-feeds :auth="{{ auth()->user() }}" ></list-feeds>

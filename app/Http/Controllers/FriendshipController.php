@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Imbox;
+use App\Events\InvitationSentEvent;
 
 class FriendshipController extends Controller
 {
@@ -20,12 +21,13 @@ class FriendshipController extends Controller
 		if (!Imbox::where('user_id',$id)->where('user2_id',$u->id)->get()->isEmpty()) {
 			return response('error invitation sent',403);
 		}
-		Imbox::create([
+		$imbox = Imbox::create([
 			'text'		=> 	$u->name . ' quiere ser tu amigo.', 
 			'user_id'	=>	$id , 
 			'user2_id'=> 	$u->id , 
 			'status' 	=> 	0
 		]);
+		broadcast(new InvitationSentEvent(User::find($is), $imbox))->toOthers();
 		return response('success');
 	}
 

@@ -97,8 +97,7 @@
                 
             Echo.private(`App.User.${this.auth.id}`)
                 .listen('InvitationSentEvent', (e) => {
-                    console.log(e);
-                    this.$toastr.s(e.imbox.text); 
+                    this.$toastr.i(e.imbox.text); 
                 });
         },
         methods: {

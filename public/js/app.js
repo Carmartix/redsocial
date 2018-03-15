@@ -69354,8 +69354,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         });
 
         Echo.private('App.User.' + this.auth.id).listen('InvitationSentEvent', function (e) {
-            console.log(e);
-            _this.$toastr.s(e.imbox.text);
+            _this.$toastr.i(e.imbox.text);
         });
     },
 

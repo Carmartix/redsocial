@@ -6,8 +6,11 @@
             <div class="input-group mb-3" v-if="!editing">
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" accept="images/*" id="inputGroupFile01" v-on:change="onFileChange"/>
-                    <label class="custom-file-label" for="inputGroupFile01">Upload</label>
+                    <label class="custom-file-label" for="inputGroupFile01">Nueva Imagen</label>
                 </div>
+            </div>
+            <div class="card-title">
+                <input type="text" class="form-control" name="email" v-model="user.email" disabled />
             </div>
             <div class="card-title">
                 <input type="text" class="form-control" name="name" v-model="user.name" v-bind:disabled="editing" />

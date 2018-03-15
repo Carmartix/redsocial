@@ -69304,6 +69304,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -69491,11 +69494,35 @@ var render = function() {
                   staticClass: "custom-file-label",
                   attrs: { for: "inputGroupFile01" }
                 },
-                [_vm._v("Upload")]
+                [_vm._v("Nueva Imagen")]
               )
             ])
           ])
         : _vm._e(),
+      _vm._v(" "),
+      _c("div", { staticClass: "card-title" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.user.email,
+              expression: "user.email"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: { type: "text", name: "email", disabled: "" },
+          domProps: { value: _vm.user.email },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.user, "email", $event.target.value)
+            }
+          }
+        })
+      ]),
       _vm._v(" "),
       _c("div", { staticClass: "card-title" }, [
         _c("input", {

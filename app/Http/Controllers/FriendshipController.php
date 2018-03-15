@@ -27,7 +27,7 @@ class FriendshipController extends Controller
 			'user2_id'=> 	$u->id , 
 			'status' 	=> 	0
 		]);
-		broadcast(new InvitationSentEvent(User::find($is), $imbox))->toOthers();
+		broadcast(new InvitationSentEvent(User::find($id), $imbox))->toOthers();
 		return response('success');
 	}
 
